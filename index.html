@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelierul TIC — Mesaj Bilingv Erasmus+</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #003399;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 1rem;
+      max-width: 150px;
+    }
+    form {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #003399;
+      color: white;
+      margin-top: 1.5rem;
+      cursor: pointer;
+    }
+    #response {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Erasmus%2B_Logo.svg/512px-Erasmus%2B_Logo.svg.png" alt="Erasmus+ Logo" class="logo">
+  <h1>Atelierul TIC — Mesaj Bilingv</h1>
+  <form id="messageForm">
+    <label for="nume">Numele tău:</label>
+    <input type="text" id="nume" name="nume" required>
+
+    <label for="mesaj">Mesajul tău (română + italiană):</label>
+    <textarea id="mesaj" name="mesaj" rows="4" required></textarea>
+
+    <button type="submit">Trimite</button>
+    <div id="response"></div>
+  </form>
+
+  <script>
+    function esteMesajValid(mesaj) {
+      const fraze = mesaj.split(/[.!?]/).filter(f => f.trim().length > 0);
+      const areDouaFraze = fraze.length >= 2;
+      const contineItaliana = /ciao|grazie|buongiorno|arrivederci|come stai|bene/i.test(mesaj);
+      const contineRomana = /bun[aă]|mul[tț]umesc|salut|la revedere|ce faci/i.test(mesaj);
+      return areDouaFraze && contineItaliana && contineRomana;
+    }
+
+    document.getElementById("messageForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nume = document.getElementById("nume").value.trim();
+      const mesaj = document.getElementById("mesaj").value.trim();
+      const raspuns = document.getElementById("response");
+
+      if (esteMesajValid(mesaj)) {
+        raspuns.textContent = "amfiteatru";
+      } else {
+        raspuns.textContent = "mai încearcă";
+      }
+
+      // TRIMITERE SPRE GOOGLE SHEET (aici va fi linkul webhookului de la Apps Script)
+      fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+        method: "POST",
+        body: JSON.stringify({
+          nume: nume,
+          mesaj: mesaj,
+          raspuns: raspuns.textContent,
+          timestamp: new Date().toISOString()
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    });
+  </script>
+</body>
+</html>
